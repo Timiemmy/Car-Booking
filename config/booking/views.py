@@ -7,7 +7,6 @@ from .models import Booking
 from .serializers import BookingSerializer
 
 
-
 class BookingList(generics.ListCreateAPIView):
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
@@ -21,23 +20,17 @@ class BookingList(generics.ListCreateAPIView):
 
         # Combine date and time
         pickup_datetime = datetime.strptime(f"{pickup_date} {pickup_time}", "%Y-%m-%d %H:%M")
-        # Calculate end datetime based on trip duration (assuming trip_duration is in hours)
         end_datetime = pickup_datetime + timedelta(hours=int(trip_duration))
 
         # Check for overlapping bookings
         existing_bookings = Booking.objects.filter(
-            vehicle_id=vehicle_id,
+            vehicle_id=vehicle_id
+        ).filter(
             Q(
-                # New booking starts during an existing booking
-                Q(pickup_date=pickup_date) &
-                Q(pickup_time__lte=pickup_time) & 
-                Q(pickup_time__gt=end_datetime.strftime('%H:%M'))
-            ) |
-            Q(
-                # Existing booking starts during the new booking
-                (Q(pickup_date=pickup_date) &
-                Q(pickup_time__gte=pickup_time) & 
-                Q(pickup_time__lt=end_datetime.strftime('%H:%M')))
+                # New booking overlaps with existing booking
+                (Q(pickup_date=pickup_date) & Q(pickup_time__lte=pickup_time) & Q(pickup_time__lt=end_datetime.strftime('%H:%M'))) |
+                # Existing booking overlaps with new booking
+                (Q(pickup_date=pickup_date) & Q(pickup_time__gte=pickup_time) & Q(pickup_time__lt=end_datetime.strftime('%H:%M')))
             )
         )
 
@@ -49,3 +42,9 @@ class BookingList(generics.ListCreateAPIView):
 
         # If vehicle is available, proceed with creating the booking
         return super().create(request, *args, **kwargs)
+
+
+
+class BookingDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Booking.objects.all()
+    serializer_class = BookingSerializer
