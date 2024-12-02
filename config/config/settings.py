@@ -39,13 +39,13 @@ DJANGO_APPS = [
     "django.contrib.staticfiles",
 ]
 
-THIRD_PARTY_APPS = ['rest_framework', 'django_filters',]
+THIRD_PARTY_APPS = ['rest_framework',
+                    'rest_framework.authtoken', 'dj_rest_auth', 'django_filters',]
 
 CUSTOM_APPS = [
     'account',
     'booking',
     'vehicle',
-    "service"
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + CUSTOM_APPS
@@ -144,5 +144,8 @@ AUTH_USER_MODEL='account.CustomUser'
 
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
 }
