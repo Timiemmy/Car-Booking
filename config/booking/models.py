@@ -1,6 +1,6 @@
 from django.db import models
 from vehicle.models import Vehicle
-from account.models import CustomUser
+from custom_account.models import CustomUser
 
 class Booking(models.Model):
     class TripType(models.TextChoices):
